@@ -1,0 +1,106 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Farm-themed color system */
+@layer base {
+  :root {
+    --background: 120 20% 98%;
+    --foreground: 120 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 120 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 10% 15%;
+
+    --primary: 120 40% 35%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 60 20% 95%;
+    --secondary-foreground: 120 10% 25%;
+
+    --muted: 120 15% 95%;
+    --muted-foreground: 120 8% 45%;
+
+    --accent: 90 25% 90%;
+    --accent-foreground: 120 10% 25%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 120 15% 88%;
+    --input: 120 15% 88%;
+    --ring: 120 40% 35%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 120 15% 8%;
+    --foreground: 120 20% 95%;
+
+    --card: 120 15% 10%;
+    --card-foreground: 120 20% 95%;
+
+    --popover: 120 15% 10%;
+    --popover-foreground: 120 20% 95%;
+
+    --primary: 120 35% 65%;
+    --primary-foreground: 120 15% 8%;
+
+    --secondary: 120 10% 15%;
+    --secondary-foreground: 120 20% 85%;
+
+    --muted: 120 10% 15%;
+    --muted-foreground: 120 15% 65%;
+
+    --accent: 120 10% 20%;
+    --accent-foreground: 120 20% 85%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 120 10% 20%;
+    --input: 120 10% 20%;
+    --ring: 120 35% 65%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom farm-themed gradients */
+.farm-gradient {
+  background: linear-gradient(135deg, hsl(120, 40%, 35%) 0%, hsl(90, 35%, 45%) 100%);
+}
+
+.earth-gradient {
+  background: linear-gradient(135deg, hsl(30, 40%, 60%) 0%, hsl(60, 35%, 70%) 100%);
+}
