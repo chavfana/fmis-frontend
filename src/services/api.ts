@@ -91,6 +91,35 @@ class ApiService {
     });
   }
 
+  // Email verification endpoints
+  async confirmEmail(key: string) {
+    return this.request(`/account-confirm-email/${key}/`, {
+      method: 'POST',
+    });
+  }
+
+  async resendEmailVerification(email: string) {
+    return this.request('/resend-email/', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  // Phone verification endpoints
+  async sendSMS(data: { phone_number: string }) {
+    return this.request('/user/send-sms/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async verifyPhone(data: { phone_number: string; verification_code: string }) {
+    return this.request('/user/verify-phone/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Fertility spreads endpoints
   async getFertilitySpreads(plantingEventId: string) {
     return this.request(`/project/planting-event/${plantingEventId}/fertility-spreads`);

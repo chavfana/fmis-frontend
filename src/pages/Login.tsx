@@ -5,12 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sprout, Phone, Mail } from 'lucide-react';
+import { Sprout, Phone, Mail, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { apiService } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
@@ -19,16 +23,74 @@ const Login = () => {
     farmName: ''
   });
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual authentication
-    navigate('/dashboard');
+    try {
+      setIsLoading(true);
+      const credentials = loginMethod === 'email' 
+        ? { email: formData.email, password: formData.password }
+        : { phone_number: formData.phone, password: formData.password };
+      
+      await apiService.login(credentials);
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual registration
-    navigate('/dashboard');
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Password mismatch",
+        description: "Please ensure both passwords match.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const userData = {
+        farm_name: formData.farmName,
+        password: formData.password,
+        ...(loginMethod === 'email' 
+          ? { email: formData.email }
+          : { phone_number: formData.phone }
+        )
+      };
+      
+      await apiService.register(userData);
+      
+      if (loginMethod === 'email') {
+        toast({
+          title: "Registration successful",
+          description: "Please check your email to verify your account.",
+        });
+        navigate(`/verify-email?email=${formData.email}`);
+      } else {
+        await apiService.sendSMS({ phone_number: formData.phone });
+        toast({
+          title: "Registration successful",
+          description: "Please check your phone for verification code.",
+        });
+        navigate("/verify-phone", { state: { phoneNumber: formData.phone } });
+      }
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -104,8 +166,9 @@ const Login = () => {
                   />
                 </div>
                 
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
               </form>
             </TabsContent>
@@ -187,8 +250,9 @@ const Login = () => {
                   />
                 </div>
                 
-                <Button type="submit" className="w-full">
-                  Register Farm
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isLoading ? "Registering..." : "Register Farm"}
                 </Button>
               </form>
             </TabsContent>

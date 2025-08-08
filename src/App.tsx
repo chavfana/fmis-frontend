@@ -8,6 +8,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PlantFarming from "./pages/PlantFarming";
 import AnimalFarming from "./pages/AnimalFarming";
+import EmailVerification from "./pages/EmailVerification";
+import PhoneVerification from "./pages/PhoneVerification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
+          <Route path="/verify-phone" element={<PhoneVerification />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/plant-farming" element={<PlantFarming />} />
           <Route path="/animal-farming" element={<AnimalFarming />} />
