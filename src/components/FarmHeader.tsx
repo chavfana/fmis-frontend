@@ -1,11 +1,24 @@
-
-import { Sprout, Bell, User, Menu, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Bell, User, Settings, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Sprout } from 'lucide-react';
 
-const FarmHeader = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+interface FarmHeaderProps {
+  onSearch?: (query: string) => void;
+}
+
+const FarmHeader = ({ onSearch }: FarmHeaderProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { user, logout } = useAuth();
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    onSearch?.(query);
+  };
 
   return (
     <header className="bg-white border-b border-border shadow-sm">
@@ -31,8 +44,8 @@ const FarmHeader = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search projects, animals, crops..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchQuery}
+              onChange={handleSearch}
               className="pl-10"
             />
           </div>
@@ -46,8 +59,13 @@ const FarmHeader = () => {
             <Bell className="h-4 w-4" />
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-xs"></span>
           </Button>
-          <Button variant="outline" size="icon">
+          <Button variant="ghost" size="sm">
             <User className="h-4 w-4" />
+            <span className="ml-2 hidden sm:inline">{user?.farm_name}</span>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={logout}>
+            <LogOut className="h-4 w-4" />
+            <span className="ml-2 hidden sm:inline">Logout</span>
           </Button>
         </div>
       </div>

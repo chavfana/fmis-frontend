@@ -1,4 +1,4 @@
-
+import React, { useState, useEffect } from 'react';
 import FarmHeader from '@/components/FarmHeader';
 import MetricCard from '@/components/MetricCard';
 import WeatherWidget from '@/components/WeatherWidget';
@@ -8,54 +8,89 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Wheat, Beef, Droplets, DollarSign, TrendingUp, AlertTriangle, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiService } from '@/services/api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [projects, setProjects] = useState([]);
+  const [metrics, setMetrics] = useState({
+    totalCrops: 0,
+    livestock: 0,
+    waterUsage: '0L',
+    revenue: '$0'
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const projectsData = await apiService.getProjects();
+        setProjects(projectsData.results || projectsData || []);
+        
+        // Calculate metrics from projects data
+        const totalProjects = projectsData.results?.length || projectsData.length || 0;
+        setMetrics({
+          totalCrops: totalProjects,
+          livestock: 0, // Will be calculated when animal data is available
+          waterUsage: '0L', // Will be calculated from usage data
+          revenue: '$0' // Will be calculated from sales data
+        });
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
-      <FarmHeader />
+      <FarmHeader onSearch={setSearchQuery} />
       
       <main className="container mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back, Farm Manager!</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-2">
+            Welcome back, {user?.farm_name || 'Farm Manager'}!
+          </h2>
           <p className="text-muted-foreground">Here's what's happening on your farm today.</p>
         </div>
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
-            title="Active Projects"
-            value="12"
-            change="+3 from last month"
-            changeType="positive"
+            title="Total Projects"
+            value={metrics.totalCrops.toString()}
+            change="Active farm projects"
+            changeType="neutral"
             icon={Wheat}
-            subtitle="Plant & Animal farming"
+            subtitle="Plant & Animal Projects"
           />
           <MetricCard
-            title="Total Animals"
-            value="145"
-            change="+12 from last month"
-            changeType="positive"
+            title="Livestock"
+            value={metrics.livestock.toString()}
+            change="Total animals"
+            changeType="neutral"
             icon={Beef}
-            subtitle="Cattle, Sheep, Chickens"
+            subtitle="All livestock groups"
           />
           <MetricCard
-            title="Land Area"
-            value="250 acres"
-            change="Same as last month"
+            title="Water Usage"
+            value={metrics.waterUsage}
+            change="Current period"
             changeType="neutral"
             icon={Droplets}
-            subtitle="Under cultivation"
+            subtitle="Resource monitoring"
           />
           <MetricCard
-            title="Monthly Revenue"
-            value="$12,450"
-            change="+15% from last month"
-            changeType="positive"
+            title="Revenue"
+            value={metrics.revenue}
+            change="Total earnings"
+            changeType="neutral"
             icon={DollarSign}
-            subtitle="Total earnings"
+            subtitle="Farm income"
           />
         </div>
 
@@ -100,7 +135,7 @@ const Dashboard = () => {
 
         {/* Projects List - New comprehensive section */}
         <div className="mb-8">
-          <ProjectsList />
+          <ProjectsList searchQuery={searchQuery} />
         </div>
 
         {/* Side Content */}
@@ -114,7 +149,7 @@ const Dashboard = () => {
                 <div>
                   <h3 className="font-medium text-orange-900">Weather Alert</h3>
                   <p className="text-sm text-orange-700 mt-1">
-                    Heavy rain expected tomorrow. Check drainage systems.
+                    Check weather conditions for optimal farming operations.
                   </p>
                 </div>
               </div>
@@ -133,9 +168,9 @@ const Dashboard = () => {
           <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100">Crop Yield</p>
-                <p className="text-2xl font-bold">+23%</p>
-                <p className="text-sm text-green-100">vs last season</p>
+                <p className="text-green-100">Farm Status</p>
+                <p className="text-2xl font-bold">Active</p>
+                <p className="text-sm text-green-100">All systems operational</p>
               </div>
               <TrendingUp className="h-8 w-8 text-green-200" />
             </div>
@@ -145,7 +180,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100">Efficiency</p>
-                <p className="text-2xl font-bold">94%</p>
+                <p className="text-2xl font-bold">--</p>
                 <p className="text-sm text-blue-100">Resource utilization</p>
               </div>
               <Droplets className="h-8 w-8 text-blue-200" />
@@ -155,9 +190,9 @@ const Dashboard = () => {
           <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100">Farm Health</p>
-                <p className="text-2xl font-bold">Excellent</p>
-                <p className="text-sm text-purple-100">Overall status</p>
+                <p className="text-purple-100">Projects</p>
+                <p className="text-2xl font-bold">{metrics.totalCrops}</p>
+                <p className="text-sm text-purple-100">Total active</p>
               </div>
               <Wheat className="h-8 w-8 text-purple-200" />
             </div>

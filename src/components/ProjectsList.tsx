@@ -9,7 +9,11 @@ import { useQuery } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
 import ProjectDetailModal from './ProjectDetailModal';
 
-const ProjectsList = () => {
+interface ProjectsListProps {
+  searchQuery?: string;
+}
+
+const ProjectsList = ({ searchQuery = '' }: ProjectsListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,9 +66,10 @@ const ProjectsList = () => {
 
   const projects = apiProjects || sampleProjects;
 
+  const activeSearchTerm = searchQuery || searchTerm;
   const filteredProjects = projects.filter((project: any) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.location.toLowerCase().includes(searchTerm.toLowerCase())
+    project.name.toLowerCase().includes(activeSearchTerm.toLowerCase()) ||
+    project.location.toLowerCase().includes(activeSearchTerm.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
@@ -105,7 +110,7 @@ const ProjectsList = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search projects..."
-              value={searchTerm}
+              value={searchQuery || searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />

@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sprout, Phone, Mail, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { apiService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,7 +33,14 @@ const Login = () => {
         ? { email: formData.email, password: formData.password }
         : { phone_number: formData.phone, password: formData.password };
       
-      await apiService.login(credentials);
+      const response = await apiService.login(credentials);
+      const userData = {
+        id: response.user.id,
+        email: response.user.email,
+        phone_number: response.user.phone_number,
+        farm_name: response.user.farm_name,
+      };
+      login(userData, response.key);
       navigate("/dashboard");
     } catch (error) {
       toast({
@@ -170,6 +179,15 @@ const Login = () => {
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? "Logging in..." : "Login"}
                 </Button>
+                
+                <div className="text-center mt-4">
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
               </form>
             </TabsContent>
             

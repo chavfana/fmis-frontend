@@ -5,9 +5,11 @@ const API_BASE_URL = 'https://chavfana.com/api';
 class ApiService {
   private async request(endpoint: string, options: RequestInit = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
+    const token = localStorage.getItem('auth_token');
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Token ${token}` }),
         ...options.headers,
       },
       ...options,
@@ -129,6 +131,42 @@ class ApiService {
     return this.request(`/project/planting-event/${plantingEventId}/fertility-spreads`, {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  // Password reset endpoints
+  async initiatePasswordResetEmail(email: string) {
+    return this.request('/password/reset/', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async initiatePasswordResetPhone(phoneNumber: string) {
+    return this.request('/user/password/initiate-password-reset/', {
+      method: 'POST',
+      body: JSON.stringify({ phone_number: phoneNumber }),
+    });
+  }
+
+  async verifyPasswordResetOTP(data: { phone_number: string; verification_code: string }) {
+    return this.request('/user/verify-phone/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async createPasswordFromOTP(data: { phone_number: string; verification_code: string; password: string }) {
+    return this.request('/user/password/create-password-from-otp/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async confirmPasswordReset(data: { uidb64: string; token: string; password: string }) {
+    return this.request(`/password/reset/confirm/${data.uidb64}/${data.token}/`, {
+      method: 'POST',
+      body: JSON.stringify({ password: data.password }),
     });
   }
 }

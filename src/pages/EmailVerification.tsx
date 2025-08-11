@@ -37,7 +37,7 @@ const EmailVerification = () => {
         title: "Email verified successfully!",
         description: "You can now log in to your account.",
       });
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/registration-success"), 2000);
     } catch (error) {
       toast({
         title: "Verification failed",

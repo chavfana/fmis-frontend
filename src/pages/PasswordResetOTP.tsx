@@ -4,37 +4,43 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Phone, CheckCircle } from "lucide-react";
+import { Loader2, Phone } from "lucide-react";
 import { apiService } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 
-const PhoneVerification = () => {
+const PasswordResetOTP = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
 
   const phoneNumber = location.state?.phoneNumber || "";
 
-  const handleVerifyPhone = async (e: React.FormEvent) => {
+  const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!verificationCode || !phoneNumber) return;
 
     setIsLoading(true);
     try {
-      await apiService.verifyPhone({
+      // Verify the OTP code for password reset
+      await apiService.verifyPasswordResetOTP({
         phone_number: phoneNumber,
         verification_code: verificationCode,
       });
-      setIsVerified(true);
+      
       toast({
-        title: "Phone verified successfully!",
-        description: "You can now log in to your account.",
+        title: "Code verified successfully!",
+        description: "You can now set a new password.",
       });
-      setTimeout(() => navigate("/registration-success"), 2000);
+      
+      navigate("/password-reset", { 
+        state: { 
+          phoneNumber, 
+          verificationCode,
+          resetMethod: 'phone'
+        }
+      });
     } catch (error) {
       toast({
         title: "Verification failed",
@@ -51,10 +57,10 @@ const PhoneVerification = () => {
 
     setIsLoading(true);
     try {
-      await apiService.sendSMS({ phone_number: phoneNumber });
+      await apiService.initiatePasswordResetPhone(phoneNumber);
       toast({
         title: "Verification code sent",
-        description: "Please check your phone for the verification code.",
+        description: "Please check your phone for the new verification code.",
       });
     } catch (error) {
       toast({
@@ -67,34 +73,18 @@ const PhoneVerification = () => {
     }
   };
 
-  if (isVerified) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <CardTitle className="text-2xl">Phone Verified!</CardTitle>
-            <CardDescription>
-              Your phone number has been successfully verified. Redirecting to login...
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Phone className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-          <CardTitle className="text-2xl">Phone Verification</CardTitle>
+          <CardTitle className="text-2xl">Verify Phone Number</CardTitle>
           <CardDescription>
             We sent a verification code to {phoneNumber}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form onSubmit={handleVerifyPhone} className="space-y-4">
+          <form onSubmit={handleVerifyCode} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="code">Verification Code</Label>
               <Input
@@ -110,7 +100,7 @@ const PhoneVerification = () => {
             
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Verify Phone
+              Verify Code
             </Button>
           </form>
 
@@ -126,10 +116,10 @@ const PhoneVerification = () => {
             <br />
             <Button 
               variant="ghost" 
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/forgot-password")}
               className="text-sm"
             >
-              Back to Login
+              Back to Reset Options
             </Button>
           </div>
         </CardContent>
@@ -138,4 +128,4 @@ const PhoneVerification = () => {
   );
 };
 
-export default PhoneVerification;
+export default PasswordResetOTP;
